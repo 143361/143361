@@ -12,22 +12,214 @@
   <!-- See https://khanacademy.zendesk.com/hc/en-us/articles/202260404-What-parts-of-ProcessingJS-does-Khan-Academy-support- for differences -->
   <script src="https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js"></script> 
   <script>
-  var programCode = function(processingInstance) {
-    with (processingInstance) {
-      size(400, 400); 
-      frameRate(30);
+  var cx=200; // initial x-position
+var cy=30; // initial y-position
+var a = 9.8;
+var u = 0;
+var v,s;
+var t = 0;
+var r = -0.5; 
+var platform_color = color(237, 19, 215);
+var ground_color = color(12, 182, 24);
+var ball_color = color(0, 0, 0);
+var bc = 0; 
+var bc2 = 0; 
+var bc3 = 0; 
+var k = 0.2;
+var m = 0.5; 
+var lives = 100;  
+
+var badx= 350;
+var bady = 300;
+var badguy = getImage("cute/EnemyBug");
+
+var evil = function() {
+    image(badguy, badx-20, bady-20, 40, 40);
+    if (badx<cx) {
+        badx = badx + 0.4;
+    } else {
+        badx = badx - 0.4;
+    }
         
-      // Paste code from Khan Academy here:
-      fill(255, 255, 0);
-      ellipse(200, 200, 200, 200);
-      noFill();
-      stroke(0, 0, 0);
-      strokeWeight(2);
-      arc(200, 200, 150, 100, 0, PI);
-      fill(0, 0, 0);
-      ellipse(250, 200, 10, 10);
-      ellipse(153, 200, 10, 10);
-    }};
+    if (bady<cy) {
+        bady = bady + 0.4;
+    } else {
+        bady = bady - 0.4;
+    }
+    
+    fill(40, 27, 10); // text color
+    textSize(18); // size
+    text("Lives: " + lives, 296, 201);
+
+    
+    var distance = dist(cx,cy,badx,bady);
+    // if the disance is less than 20 then lose health
+    if (distance<20) {
+	    lives = lives - 1;
+    }
+    
+};
+
+  
+
+var draw = function() {
+    background(82, 222, 240);
+    evil(); 
+    
+    //buttons:
+    //Bounciness
+    fill(247, 0, 247);
+    rect(297, 71, 91, 25);
+    fill(255, 255, 255);
+    textSize(16);
+    text("+ Bounce", 307, 89); 
+    
+    fill(255, 255, 255);
+    rect(297, 106, 91, 25);
+    fill(3, 3, 3);
+    textSize(16);
+    text("- Bounce", 307, 124); 
+    
+    //Ball color
+    fill(255, 0, 0);
+    rect(245, 145, 143, 26);
+    fill(255, 255, 255);
+    textSize(16);
+    text("Ball colour change", 250, 163); 
+    
+    
+    //TITLE
+    fill(13, 0, 255);
+    textSize(20);
+    text("THE BOUNCING BALL SIMULATION",26,40);
+   
+    
+    //extra platforms
+    fill(237, 19, 215); 
+    triangle(191,350,376,353,290,456);
+    rect(13,110,200,20);
+    rect(0,380,400,20);
+    rect(16,310,127,20);
+    rect(14,210,169,20);
+
+    // DRAW GROUND
+    fill(12, 182, 24); 
+    rect(0,380,400,20);
+    
+    // DRAW A BALL
+    fill(bc, bc, bc); 
+    ellipse(cx,cy,20,20);
+    
+    //main equations
+    s = u + 0.5 * a;
+    v = u + a;
+    
+    // Add the displacement (s) to the y-coord
+    //the 0.01 is a scale of 1% to fit it on the screen
+    cy = cy + (s * 0.01);
+    
+    //New initial velocity 
+    u = v;
+   
+   //making sure it bounces 
+   if (cy>370) {
+        u = u * r; // this is the bit that reverses the velocity
+        cy=370;  // makes sure it doesn’t go into the ground
+}
+
+        
+       // What is the colour just below my ball?
+    var col = get(cx,cy+11); // get() finds the colour
+    // If it's touching the rectangle/platform colour, then reverse
+    if(col===platform_color) { 
+        u = u * r; // reverse direction
+    } 
+
+    
+    //Bounciness 
+      fill(0,0,0);
+    textSize(16);
+    text("Bounciness = " + r,250,60);
+    
+    
+    //Bounciness 
+      fill(0, 4, 255);
+    textSize(16);
+    text("Current velocity = " + v,234,302);
+      
+  
+     fill(0,0,0);
+    textSize(18);
+    text("DONT TOUCH THE EVIL LADYBIRD!", 40, 269);
+    
+    
+if (lives<0) {
+     fill(255, 0, 0); 
+     rect(0,0,400,4000);
+     
+    fill(0,0,0);
+    textSize(65);
+    text("YOU DIED", 40, 211);
+    
+    
+}
+  
+}; 
+
+
+
+//Activating buttons
+ mouseClicked = function() {
+     if (mouseX >= 297 && mouseX <= 388 && mouseY >= 71 && mouseY <= 96) {
+         r = r+0.2;
+         if (r > 0) {
+             r = 0;
+         }
+    }
+    
+     if (mouseX >= 297 && mouseX <= 388 && mouseY >= 106 && mouseY <= 131) {
+         r = r-0.2;
+        
+     }
+
+    if (mouseX >= 297 && mouseX <= 388 && mouseY >= 145 && mouseY <= 171) {
+        bc = bc+50; 
+    } 
+
+    };  
+
+
+//adding the keys for control 
+keyPressed = function() {
+    keyPressed = function() {
+    if (keyCode === LEFT) {
+        cx = cx - 5;
+    } 
+    if (keyCode === RIGHT) {
+        cx=cx + 5;
+    } 
+  if (keyCode === UP) { // if you press up
+        var col = get(cx,cy+15);  // looks at the colour just below the ball
+         
+         if(col===ground_color) { 
+             u = -500; // JUMP
+            
+        } 
+        if(col===(platform_color)) { 
+             u = -500; // JUMP
+        
+         }
+        
+         
+        // If it's just above the platform colour, then jump
+        
+    }
+    
+};
+
+   
+    
+};
 
   // Get the canvas that ProcessingJS will use
   var canvas = document.getElementById("mycanvas"); 
